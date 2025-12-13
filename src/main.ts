@@ -11,7 +11,7 @@ import { createI18n } from "vue-i18n";
  * - Registers `vue-router`
  * - Attempts to dynamically register `@nuxt/ui` if present, and falls back to local UI
  * - Adds a small global helper for copying to clipboard
- * - Registers the service worker for offline-first behavior (if available)
+ * - Registers the service worker to enable caching and improve availability (if available)
  *
  * Notes:
  * - `@nuxt/ui` is designed for Nuxt, but this file attempts to integrate it
@@ -184,7 +184,7 @@ const messages = {
       subtitle: "Offline-first CLI toolkit",
       home: "Home",
       homeDescription:
-        "Browse offline documentation for Kam commands, including usage and examples.",
+        "Browse documentation for Kam commands, including usage and examples.",
       commands: "Commands",
       usage: "Usage",
       examples: "Examples",
@@ -194,12 +194,15 @@ const messages = {
       searchPlaceholder: "Search commands — e.g. build, init",
       filterPlaceholder: "Filter commands...",
       searchAndExplore: "Search and explore commands",
+      headerLabel: "Kam documentation header",
+      commandsNavigation: "Commands navigation",
       open: "Open",
       expand: "Expand",
       collapse: "Collapse",
       back: "Back",
       globalOptions: "Global Options",
       flag: "Flag",
+      flags: "Options",
       description: "Description",
       language: "Language",
       switchToLight: "Switch to light theme",
@@ -207,7 +210,7 @@ const messages = {
       noResults: "No results",
       noResultsMatch: "No commands match your search.",
       commandNotFound: "Command not found",
-      commandNotFoundWithName: "Command {name} not found",
+      commandNotFoundWithName: "Command {name} not found.",
       commandNotFoundDetail:
         "Check the command list or search using the sidebar.",
       commandList: "command list",
@@ -216,6 +219,10 @@ const messages = {
         "Content is cached for offline use and sourced from the project manifest.",
       footer:
         "Kam — offline-first CLI toolkit documentation. Content is local and sourced from the project manifest.",
+    },
+    globalFlags: {
+      help: "Print help (see a summary with -h)",
+      version: "Print version",
     },
     // Additional command-specific translations (used when the app reads them)
     commands: {
@@ -230,6 +237,9 @@ const messages = {
         flags: [
           { flag: "-i, --interactive", description: "Run in interactive mode" },
         ],
+        flagDescriptions: {
+          interactive: "Run the init interactively; ask for required values",
+        },
       },
       build: {
         name: "build",
@@ -341,7 +351,7 @@ const messages = {
       brandSuffix: "文档",
       subtitle: "离线优先的 CLI 工具",
       home: "主页",
-      homeDescription: "浏览 Kam CLI 的离线文档，包括用法与示例。",
+      homeDescription: "浏览 Kam CLI 文档，包括用法与示例。",
       commands: "命令",
       usage: "用法",
       examples: "示例",
@@ -351,12 +361,15 @@ const messages = {
       searchPlaceholder: "搜索命令 — 例如 build, init",
       filterPlaceholder: "筛选命令...",
       searchAndExplore: "使用上方搜索查找并浏览命令",
+      headerLabel: "Kam 文档头",
+      commandsNavigation: "命令导航",
       open: "打开",
       expand: "展开",
       collapse: "收起",
       back: "返回",
       globalOptions: "全局选项",
       flag: "选项",
+      flags: "选项",
       description: "描述",
       language: "语言",
       switchToLight: "切换到浅色主题",
@@ -364,12 +377,16 @@ const messages = {
       noResults: "没有结果",
       noResultsMatch: "没有命令匹配您的搜索。",
       commandNotFound: "未找到命令",
-      commandNotFoundWithName: "未找到命令：{name}",
+      commandNotFoundWithName: "未找到命令：{name}。",
       commandNotFoundDetail: "检查命令列表或使用侧边栏搜索。",
       commandList: "命令列表",
       offline: "离线",
-      offlineDesc: "内容已缓存并支持离线使用",
+      offlineDesc: "内容已缓存并可在本地访问",
       footer: "Kam — 离线优先的 CLI 工具文档。内容来自项目清单的本地副本。",
+    },
+    globalFlags: {
+      help: "打印帮助信息（使用 -h 查看摘要）",
+      version: "打印版本号",
     },
     // Command translations
     commands: {
@@ -386,6 +403,9 @@ const messages = {
             description: "交互式运行，提示必要选项",
           },
         ],
+        flagDescriptions: {
+          interactive: "交互式运行，提示必要选项",
+        },
       },
       build: {
         name: "build",
@@ -489,9 +509,26 @@ const messages = {
   },
 };
 
+// Try to load saved locale from localStorage
+let initialLocale = "en";
+try {
+  const saved = localStorage.getItem("locale");
+  if (saved === "en" || saved === "zh") {
+    initialLocale = saved;
+  } else {
+    // Try to detect from browser language
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith("zh")) {
+      initialLocale = "zh";
+    }
+  }
+} catch (e) {
+  // ignore localStorage errors
+}
+
 const i18n = createI18n({
   legacy: false,
-  locale: "en",
+  locale: initialLocale,
   fallbackLocale: "en",
   messages,
 });
@@ -573,7 +610,7 @@ async function bootstrap() {
   // Mount the app
   app.mount("#app");
 
-  // Register a service worker for offline-first experience (only if supported)
+  // Register the service worker to enable caching and improve availability (only if supported)
   // For local development you may want to keep this disabled; we check `import.meta.env.PROD`.
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
     try {

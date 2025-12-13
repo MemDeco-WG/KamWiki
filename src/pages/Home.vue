@@ -67,7 +67,7 @@
                     "
                 >
                     <span
-                        v-for="flag in KAM_GLOBAL_FLAGS"
+                        v-for="flag in localizedGlobalFlags"
                         :key="flag.flag"
                         class="chip"
                         :title="flag.description"
@@ -121,7 +121,7 @@
                             <router-link
                                 :to="`/command/${cmd.name}`"
                                 class="command-item"
-                                :aria-label="`Open ${cmd.name}`"
+                                :aria-label="t('app.open') + ' ' + cmd.name"
                             >
                                 <div
                                     style="
@@ -232,6 +232,19 @@ import type { KamCommand } from "@/data/kam";
 const route = useRoute();
 const router = useRouter();
 const { t, te } = useI18n();
+
+// Localized global flags
+const localizedGlobalFlags = computed(() =>
+    KAM_GLOBAL_FLAGS.map((flag) => {
+        let description = flag.description || "";
+        if (flag.flag.includes("--help") || flag.flag.includes("-h")) {
+            description = t("globalFlags.help");
+        } else if (flag.flag.includes("--version") || flag.flag.includes("-V")) {
+            description = t("globalFlags.version");
+        }
+        return { ...flag, description };
+    }),
+);
 
 // Local, synced search value. We keep it in the URL as `q` so a shared link can reproduce the search.
 const localSearch = ref<string>("");
@@ -367,11 +380,18 @@ async function copyCommandUsage(cmd: KamCommand) {
 }
 
 .card {
-    background: var(--surface);
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--accent);
 }
 
 /* FYI: we rely on the global .command-item, .command-list, .kv, .muted classes */
@@ -386,10 +406,16 @@ async function copyCommandUsage(cmd: KamCommand) {
     font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
     background: var(--code-bg);
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
     overflow: auto;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+.code:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
 }
 
 .kv {
@@ -403,12 +429,20 @@ async function copyCommandUsage(cmd: KamCommand) {
 
 .chip {
     display: inline-block;
-    padding: 0.18rem 0.6rem;
+    padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background: var(--card);
+    background: var(--surface);
     color: var(--muted);
-    border: 1px solid var(--border);
-    font-weight: 700;
+    border: 1.5px solid var(--border);
+    font-weight: 600;
     font-size: 0.85rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+.chip:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 </style>

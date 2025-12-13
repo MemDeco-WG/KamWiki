@@ -1,11 +1,7 @@
 <template>
     <div id="app">
         <!-- Header -->
-        <header
-            class="header"
-            role="banner"
-            aria-label="Kam documentation header"
-        >
+        <header class="header" role="banner" :aria-label="t('app.headerLabel')">
             <div class="brand" role="heading" aria-level="1">
                 <router-link
                     to="/"
@@ -21,7 +17,11 @@
             </div>
 
             <div class="header-actions">
-                <div class="search" role="search" aria-label="Search commands">
+                <div
+                    class="search"
+                    role="search"
+                    :aria-label="t('app.searchPlaceholder')"
+                >
                     <input
                         type="search"
                         v-model="searchQuery"
@@ -34,25 +34,21 @@
                 <select
                     v-model="locale"
                     :aria-label="t('app.language')"
-                    style="
-                        border: 1px solid var(--border);
-                        padding: 6px;
-                        border-radius: 8px;
-                    "
+                    class="lang-select"
                 >
                     <option value="en">EN</option>
                     <option value="zh">中文</option>
                 </select>
 
                 <button
-                    class="btn"
+                    class="btn theme-toggle"
                     :title="themeToggleTitle"
                     :aria-pressed="isDark"
                     @click="toggleTheme"
                     :aria-label="themeToggleTitle"
                 >
-                    <span v-if="!isDark">🌙</span>
-                    <span v-else>☀️</span>
+                    <span v-if="!isDark" class="theme-icon">🌙</span>
+                    <span v-else class="theme-icon">☀️</span>
                 </button>
             </div>
         </header>
@@ -60,7 +56,7 @@
         <!-- App Container -->
         <div class="container" role="main">
             <!-- Sidebar -->
-            <aside class="sidebar" aria-label="Commands navigation">
+            <aside class="sidebar" :aria-label="t('app.commandsNavigation')">
                 <div class="card">
                     <div class="header" style="padding: 0; margin-bottom: 12px">
                         <div>
@@ -220,7 +216,7 @@ async function copyText(text: string) {
 
 // Copy helper: copy 'kam' base usage
 async function copyAllCommands() {
-    const text = `kam — offline-first CLI (commands: ${allCommands.value.map((c) => c.name).join(", ")})`;
+    const text = `kam — CLI (commands: ${allCommands.value.map((c) => c.name).join(", ")})`;
     const ok = await copyText(text);
     if (ok) {
         // Optionally give feedback via UI - a snack or similar
@@ -289,6 +285,35 @@ onMounted(() => {
     }
 });
 
+// Language persistence: save to localStorage when changed
+watch(locale, (newLocale) => {
+    try {
+        localStorage.setItem("locale", newLocale.value);
+    } catch (error) {
+        // ignore localStorage errors
+    }
+});
+
+// Load saved locale on mount
+onMounted(() => {
+    try {
+        const savedLocale = localStorage.getItem("locale");
+        if (savedLocale === "en" || savedLocale === "zh") {
+            locale.value = savedLocale;
+        } else {
+            // Try to detect from browser language
+            const browserLang = navigator.language.toLowerCase();
+            if (browserLang.startsWith("zh")) {
+                locale.value = "zh";
+            } else {
+                locale.value = "en";
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
+});
+
 // When the route changes, we can optionally adapt the UI: clear search when navigating away
 watch(route, () => {
     // Keep the search entry but close suggestions by clearing if route is home
@@ -311,15 +336,18 @@ watch(route, () => {
     background: var(--accent-foreground);
     color: var(--accent);
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-weight: 800;
 }
 .header .search input {
     min-width: 280px;
 }
 .sidebar .card {
-    padding: 12px;
-    border-radius: 10px;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    background: var(--card);
+    border: 1px solid var(--border);
 }
 .sidebar .muted {
     color: var(--muted);
@@ -336,7 +364,7 @@ watch(route, () => {
     margin-top: 3px;
 }
 .command-list .command-item.active {
-    border-color: var(--accent-foreground);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
 }
 .main {
@@ -345,6 +373,46 @@ watch(route, () => {
 .page-card {
     min-height: 60vh;
 }
+
+/* Language select */
+.lang-select {
+    border: 1.5px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.lang-select:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+.lang-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+[data-theme="dark"] .lang-select:focus {
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    min-width: 44px;
+    justify-content: center;
+    padding: 0.625rem;
+}
+.theme-icon {
+    font-size: 1.2rem;
+    transition: transform var(--transition-fast);
+}
+.theme-toggle:hover .theme-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
 @media (max-width: 900px) {
     .header .search input {
         min-width: 160px;
