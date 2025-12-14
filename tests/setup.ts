@@ -96,6 +96,75 @@ config.global.plugins.push(VueErrorHandlerPlugin);
 config.global.plugins.push(i18n);
 
 // ============================================================================
+// Mock SFC style modules (prevent style injection errors in Vitest)
+// ============================================================================
+// Some SFC builds transform <style> blocks into modules which the Vue SFC
+// runtime expects to be callable (a default export function). In the test
+// environment these style modules can appear as empty objects and cause:
+//   TypeError: (0 , default) is not a function
+// To avoid this during tests, provide harmless mocks for the style query
+// modules that the compiled SFCs import. If you add more page SFCs with
+// styles, add similar mocks here.
+/* Targeted mocks for the compiled SFC style modules.
+ * Return the mock object inline inside the factory function to avoid
+ * referencing hoisted top-level variables (which causes vi.mock factories
+ * to fail when they are hoisted).
+ */
+vi.mock(
+  "@/pages/Home.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+vi.mock(
+  "@/pages/Command.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+
+// Some transforms / resolvers emit absolute or file:// style module ids for SFC style
+// blocks. Add mocks for those absolute / file URL variants so the test runner
+// won't attempt to call a non-callable default export from a style module.
+vi.mock(
+  "/home/lightjunction/GITHUB/Kam/KamWEBUI/src/pages/Home.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+vi.mock(
+  "/home/lightjunction/GITHUB/Kam/KamWEBUI/src/pages/Command.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+
+vi.mock(
+  "file:///home/lightjunction/GITHUB/Kam/KamWEBUI/src/pages/Home.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+vi.mock(
+  "file:///home/lightjunction/GITHUB/Kam/KamWEBUI/src/pages/Command.vue?vue&type=style&index=0&lang.css",
+  () => ({
+    default: () => {},
+    __inject__: () => {},
+  }),
+  { virtual: true },
+);
+
+// ============================================================================
 // 浏览器 API Mock
 // ============================================================================
 

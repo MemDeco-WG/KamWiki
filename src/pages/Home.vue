@@ -239,7 +239,10 @@ const localizedGlobalFlags = computed(() =>
         let description = flag.description || "";
         if (flag.flag.includes("--help") || flag.flag.includes("-h")) {
             description = t("globalFlags.help");
-        } else if (flag.flag.includes("--version") || flag.flag.includes("-V")) {
+        } else if (
+            flag.flag.includes("--version") ||
+            flag.flag.includes("-V")
+        ) {
             description = t("globalFlags.version");
         }
         return { ...flag, description };
@@ -365,84 +368,4 @@ async function copyCommandUsage(cmd: KamCommand) {
 }
 </script>
 
-<style scoped>
-.home {
-    display: block;
-}
-
-/* Small adaptations for the page layout */
-.search-input {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--text);
-}
-
-.card {
-    background: var(--card);
-    padding: 1.25rem;
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
-    border: 1.5px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-base);
-}
-.card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    border-color: var(--accent);
-}
-
-/* FYI: we rely on the global .command-item, .command-list, .kv, .muted classes */
-.command-list article {
-    padding: 10px;
-    align-items: flex-start;
-}
-
-.code {
-    margin: 0;
-    white-space: pre-wrap;
-    font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-    background: var(--code-bg);
-    padding: 0.875rem 1rem;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
-    overflow: auto;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-fast);
-}
-.code:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent);
-}
-
-.kv {
-    color: var(--muted);
-    font-size: 0.9rem;
-}
-
-.muted {
-    color: var(--muted);
-}
-
-.chip {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--muted);
-    border: 1.5px solid var(--border);
-    font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-fast);
-}
-.chip:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent);
-    color: var(--accent);
-}
-</style>
+<!-- styles moved to src/assets/main.css -->

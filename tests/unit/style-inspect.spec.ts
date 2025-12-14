@@ -28,7 +28,9 @@ async function importModule(path: string): Promise<any> {
     // @ts-ignore - Vite query imports are resolved at runtime in test environment
     return await import(path);
   } catch (err) {
-    throw new Error(`Failed to import module "${path}": ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Failed to import module "${path}": ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
@@ -62,10 +64,8 @@ describe("SFC style inspection", () => {
           ` - typeof default export: ${typeDefault}\n` +
           ` - module keys: [${keys}]\n` +
           ` - Inspector: import result: ${JSON.stringify(
-            Object.fromEntries(
-              Object.entries(mod || {}).slice(0, 10),
-            ),
-          )}`
+            Object.fromEntries(Object.entries(mod || {}).slice(0, 10)),
+          )}`,
       );
     }
 
@@ -92,10 +92,8 @@ describe("SFC style inspection", () => {
           ` - typeof default export: ${typeDefault}\n` +
           ` - module keys: [${keys}]\n` +
           ` - Inspector: import result: ${JSON.stringify(
-            Object.fromEntries(
-              Object.entries(mod || {}).slice(0, 10),
-            ),
-          )}`
+            Object.fromEntries(Object.entries(mod || {}).slice(0, 10)),
+          )}`,
       );
     }
 
@@ -121,7 +119,68 @@ describe("SFC style inspection", () => {
       // We don't assert a strict contract for global CSS, but ensure the import doesn't throw.
       expect(true).toBe(true);
     } catch (err) {
-      throw new Error(`Importing "${path}" failed: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Importing "${path}" failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
+  });
+
+  it("Inspect script blocks for pages (diagnostic)", async () => {
+    const scriptPaths = [
+      "@/pages/Home.vue?vue&type=script&setup=true&lang.ts",
+      "@/pages/Command.vue?vue&type=script&setup=true&lang.ts",
+    ];
+    for (const p of scriptPaths) {
+      try {
+        // @ts-ignore - dynamic query imports resolved by Vite transform in test environment
+        const m = await import(p);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[script-inspect] "${p}" -> keys: ${Object.keys(m || {}).join(", ")}; default typeof: ${typeof (m && (m as any).default)}`,
+        );
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[script-inspect] "${p}" import failed: ${e && (e as any).message ? (e as any).message : String(e)}`,
+        );
+      }
+    }
+    // This test is purely diagnostic and should not fail CI.
+    expect(true).toBe(true);
+  });
+
+  it("Probe various style import id formats (diagnostic)", async () => {
+    // Use the repository root that matches the test environment for absolute path variants.
+    const root = "/home/lightjunction/GITHUB/Kam/KamWEBUI";
+
+    const variants = [
+      "@/pages/Home.vue?vue&type=style&index=0&lang.css",
+      "@/pages/Command.vue?vue&type=style&index=0&lang.css",
+      `${root}/src/pages/Home.vue?vue&type=style&index=0&lang.css`,
+      `${root}/src/pages/Command.vue?vue&type=style&index=0&lang.css`,
+      `file://${root}/src/pages/Home.vue?vue&type=style&index=0&lang.css`,
+      `file://${root}/src/pages/Command.vue?vue&type=style&index=0&lang.css`,
+      `/@fs${root}/src/pages/Home.vue?vue&type=style&index=0&lang.css`,
+      `/@fs${root}/src/pages/Command.vue?vue&type=style&index=0&lang.css`,
+    ];
+
+    for (const p of variants) {
+      try {
+        // @ts-ignore - runtime-resolved module queries
+        const m = await import(p);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[style-probe] "${p}" -> typeof default: ${typeof (m && (m as any).default)}; keys: ${Object.keys(m || {}).join(", ")}`,
+        );
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[style-probe] "${p}" import failed: ${e && (e as any).message ? (e as any).message : String(e)}`,
+        );
+      }
+    }
+
+    // Diagnostic only — do not fail the suite.
+    expect(true).toBe(true);
   });
 });
