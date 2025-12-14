@@ -38,6 +38,19 @@ export default defineConfig({
     target: "es2022",
     sourcemap: true,
     // Vite uses Rollup under the hood; tweak this if needed for large builds
-    rollupOptions: {},
+    // Externalize native and binary-heavy packages to avoid platform-specific
+    // native bindings being resolved/required at build time. This keeps these
+    // modules external and prevents bundlers from trying to locate native
+    // binaries that may not be available in all environments (e.g., CI).
+    rollupOptions: {
+      external: [
+        "@tailwindcss/oxide",
+        "@tailwindcss/oxide-linux-x64-gnu",
+        "@tailwindcss/oxide-linux-x64-musl",
+        "lightningcss",
+        "lightningcss/node",
+        "lightningcss/pkg",
+      ],
+    },
   },
 });

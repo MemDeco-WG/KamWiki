@@ -167,7 +167,10 @@ const localizedGlobalFlags = computed(() =>
         let description = flag.description || "";
         if (flag.flag.includes("--help") || flag.flag.includes("-h")) {
             description = t("globalFlags.help");
-        } else if (flag.flag.includes("--version") || flag.flag.includes("-V")) {
+        } else if (
+            flag.flag.includes("--version") ||
+            flag.flag.includes("-V")
+        ) {
             description = t("globalFlags.version");
         }
         return { ...flag, description };
@@ -205,13 +208,15 @@ const localizedCommand = computed<KamCommand | undefined>(() => {
         const flagDescriptions = t(flagsKey) as Record<string, string>;
         result.flags = c.flags.map((flag) => {
             // Try to match flag by key (e.g., "interactive" for "-i, --interactive")
-            const flagKey = flag.flag
-                .split(",")[0]
+            // Normalize to a string and guard the split index result
+            const f = typeof flag?.flag === "string" ? flag.flag : "";
+            const splitFirst = String(f).split(",")[0] ?? "";
+            const flagKey = splitFirst
                 .replace(/^-+/, "")
                 .replace(/^i$/, "interactive");
             const localizedDesc =
-                flagDescriptions[flagKey] || flag.description;
-            return { ...flag, description: localizedDesc };
+                flagDescriptions[flagKey] ?? flag?.description ?? "";
+            return { ...(flag || {}), description: localizedDesc };
         });
     }
 
