@@ -537,7 +537,24 @@ Options:
 
 If you want, I can now:
 1) Add this file to the repository (create `KamWEBUI/docs/cli-help.md`), and/or
-2) Update the localized strings (`src/main.ts` / the i18n JSON) with translated summaries for newly documented flags and examples,
-3) Or generate a simple script that exports the `kam` help text (raw) into `KamWEBUI/docs/cli-help.md` automatically.
+2) Update the localized strings (`src/main.ts` / the i18n JSON) with translated summaries for newly documented flags and examples, and/or
+3) Generate a simple script that exports the `kam` help text (raw) into `KamWEBUI/docs/cli-help.md` automatically, and/or
+4) Export the CLI's `cli.*` i18n into WebUI JSON so the frontend and CLI share a single source-of-truth.
 
-告诉我你的首选下一步（把它加入仓库 / 更新本地化 / 生成导出脚本等）。
+We already added a small exporter and skeleton helper you can use locally:
+
+- Export CLI i18n into the WebUI data (writes `Kam/KamWEBUI/src/data/cli/en.json` and `.../zh.json`):
+```bash
+python3 Kam/scripts/export_cli_i18n.py
+```
+
+- Scan CLI definitions for missing i18n keys and optionally write skeleton TOML files for translators:
+```bash
+python3 Kam/scripts/generate_cli_i18n_skeleton.py --write
+```
+
+Note: CI includes an i18n check that:
+- runs the exporter and ensures the generated JSON files are committed, and
+- verifies that `kam --help` output is localized for `en` and `zh` for a few representative commands (e.g., `build`, `tmpl import`) to catch regressions early.
+
+告诉我你的首选下一步（把它加入仓库 / 更新本地化 / 生成导出脚本 / 生成翻译骨架等）。

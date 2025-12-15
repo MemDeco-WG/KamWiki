@@ -1,0 +1,259 @@
+{
+  "about": {
+    "about": "Kam — Kam is a CLI toolkit for scaffolding, building, packaging, and distributing Android modules and templates (ksu/APU/Magisk/AnyTemplate). It supports module initialization, packaging, template management, and repository metadata exports. Use `kam help <COMMAND>` for more details about a specific command.",
+    "long_about": "Kam is a CLI toolkit for scaffolding, building, packaging, and distributing Android modules and templates (ksu/APU/Magisk/AnyTemplate). It supports module initialization, packaging, template management, and repository metadata exports. Use `kam help <COMMAND>` for more details about a specific command."
+  },
+  "flags": {
+    "help": "Print help (see a summary with '-h')",
+    "version": "Print version"
+  },
+  "commands": {
+    "init": {
+      "summary": "Initialize a new Kam project from templates (supports meta and kernel templates)",
+      "description": "Interactive and non-interactive initialization from templates; supports local archives or built-in templates, with options to prefill common metadata.",
+      "flags": {
+        "name": "Project path (optional in interactive mode)",
+        "id": "Project ID (default: folder basename)",
+        "project_name": "Project name (default: Example Module Name)",
+        "version": "Project version (default: 1.0.0)",
+        "author": "Author name",
+        "update_json": "Update JSON URL (default: generated from git)",
+        "description": "Project description",
+        "force": "Force overwrite existing files",
+        "interactive": "Run in interactive mode and prompt for required values",
+        "var": "Template variable in key=value format (can be repeated)",
+        "template": "Template to use (builtin ID or local path)",
+        "tmpl": "Create a template project"
+      }
+    },
+    "build": {
+      "summary": "Build and package a module into a deployable ZIP artifact",
+      "description": "Builds a module or workspace member and creates artifacts in the output directory.",
+      "flags": {
+        "path": "Path to the project (default: current directory)",
+        "all": "Build all workspace members",
+        "output": "Output directory (default: dist)",
+        "bump": "Enable version bump process (KAM_BUMP_ENABLED)",
+        "release": "Enable release build mode (KAM_RELEASE_ENABLED)",
+        "sign": "Enable signing after build (KAM_SIGN_ENABLE)",
+        "interactive": "Run build interactively; confirm potentially destructive actions",
+        "pre_release": "Enable pre-release mode (KAM_PRE_RELEASE)",
+        "quiet": "Suppress non-essential output; show warnings and errors only",
+        "jobs": "Number of parallel jobs (default: number of CPU cores)"
+      }
+    },
+    "version": {
+      "summary": "Manage module versions and bump policies",
+      "description": "Manage and query module versions, bump policies, and automated versioning helpers."
+    },
+    "cache": {
+      "summary": "Manage local template and artifact cache",
+      "description": "List, add, remove, or clean cached templates and show cache directory.",
+      "subcommands": {
+        "list": {
+          "summary": "List cached templates"
+        },
+        "clean": {
+          "summary": "Clean all cached templates"
+        },
+        "add": {
+          "summary": "Add a template to cache from a local directory or archive",
+          "flags": {
+            "name": "Name of the template to register",
+            "path": "Path to the template source (directory or archive)"
+          }
+        },
+        "remove": {
+          "summary": "Remove a template from cache",
+          "flags": {
+            "name": "Name of the template to remove"
+          }
+        },
+        "path": {
+          "summary": "Show cache directory path"
+        }
+      }
+    },
+    "tmpl": {
+      "summary": "Manage templates: import, export, package, and list",
+      "description": "Manage templates including import/export, listing and path queries.",
+      "subcommands": {
+        "list": {
+          "summary": "List all available templates"
+        },
+        "import": {
+          "summary": "Import template(s) from file",
+          "flags": {
+            "path": "Path to template archive (.tar.gz for single, .zip for multiple)",
+            "name": "Template name (optional; defaults to filename)",
+            "force": "Force overwrite if template already exists"
+          }
+        },
+        "export": {
+          "summary": "Export template(s) to file",
+          "flags": {
+            "templates": "Template name(s) to export (can specify multiple)",
+            "output": "Output file path (.tar.gz for single, .zip for multiple)",
+            "force": "Force overwrite if output exists"
+          }
+        },
+        "remove": {
+          "summary": "Remove a template from cache"
+        },
+        "path": {
+          "summary": "Show template cache directory path"
+        },
+        "pull": {
+          "summary": "Download templates from a URL and import them",
+          "flags": {
+            "url": "Download URL (defaults to GitHub latest release templates ZIP)",
+            "global": "Flag accepted for consistency but has no effect (uses config)"
+          }
+        },
+        "update": {
+          "summary": "Re-download based on recorded URL in config and import",
+          "flags": {
+            "global": "Flag accepted for consistency but has no effect (uses config)"
+          }
+        }
+      }
+    },
+    "validate": {
+      "summary": "Validate `kam.toml` configuration and templates",
+      "description": "Validate kam.toml, templates, and project structure for errors and warnings.",
+      "flags": {
+        "path": "Path to the project directory (default: current directory)"
+      }
+    },
+    "completions": {
+      "summary": "Generate shell completion scripts for common shells",
+      "description": "Generate completion scripts for supported shells (bash, zsh, fish, powershell, elvish).",
+      "flags": {
+        "shell": "Shell type for completion (bash,zsh,fish,powershell,elvish)",
+        "out": "Output file. If omitted, prints to STDOUT."
+      }
+    },
+    "install": {
+      "summary": "Install a module package to a connected device using the configured root manager",
+      "description": "Install a built module (.zip) to a connected device using Magisk/KernelSU/APatchSU. Configure the preferred manager with `kam config set root.manager <Manager>`",
+      "flags": {
+        "path": "Path to module package (.zip). If omitted, Kam will try to find an artifact in the project's dist/ output dir",
+        "manager": "Preferred root manager (Magisk, KernelSU, APatchSU)",
+        "dry_run": "Print the derived install command instead of executing it",
+        "quiet": "Suppress non-essential output"
+      }
+    },
+    "secret": {
+      "summary": "Secret keyring management (used by sign/verify tasks)",
+      "description": "Manage stored secrets: add, get, list, remove, export, import and trust CA management.",
+      "subcommands": {
+        "list": {
+          "summary": "List saved secrets"
+        },
+        "add": {
+          "summary": "Add a secret from a value or file",
+          "flags": {
+            "name": "Name for the secret",
+            "file": "Path to file to read the secret from",
+            "file_path": "Positional path to read secret from (alternative to --file)",
+            "value": "Provide secret value directly",
+            "force_file": "Store as a local file instead of using the system keyring",
+            "password": "Pass the password on the CLI (not recommended)",
+            "with_backup": "Also create a local fallback file under ~/.kam/secrets"
+          }
+        },
+        "get": {
+          "summary": "Get a secret and print it to stdout (or write to file)",
+          "flags": {
+            "out": "Write to file instead of stdout",
+            "password": "Pass password on the CLI (not recommended)"
+          }
+        },
+        "remove": {
+          "summary": "Remove a secret"
+        },
+        "export": {
+          "summary": "Export secret to a file (default: decrypted; use --encrypted to export encrypted blob)",
+          "flags": {
+            "encrypted": "Export encrypted blob if set"
+          }
+        },
+        "import": {
+          "summary": "Import secret from a file"
+        },
+        "exportpub": {
+          "summary": "Export public key from a stored private key secret",
+          "flags": {
+            "name": "Name of the secret (default: main)",
+            "out": "Output file path (if omitted, prints to stdout)"
+          }
+        },
+        "importcert": {
+          "summary": "Import developer certificate chain from GitHub issue or file",
+          "flags": {
+            "repo": "GitHub repo (owner/repo) containing the certificate (optional)",
+            "issue": "GitHub issue number containing the certificate (optional)",
+            "cert_chain": "Path to certificate chain PEM file",
+            "name": "Name to store certificate under"
+          }
+        },
+        "trust": {
+          "summary": "Manage trusted Root CAs",
+          "flags": {
+            "add_root": "Add a Root CA from file or URL",
+            "ca_name": "Name for the Root CA",
+            "list": "List trusted Root CAs",
+            "remove": "Remove Root CA by name"
+          }
+        }
+      }
+    },
+    "sign": {
+      "summary": "Sign an artifact using a key from the keyring or a PEM file",
+      "flags": {
+        "src": "Artifact to sign (zip). If omitted, use --dist or --all to sign multiple files",
+        "secret": "Name of the keyring secret holding the private key (default: main)",
+        "out": "Output directory (default: dist)",
+        "dist": "Sign all artifacts in given directory (alternative to src)",
+        "all": "Sign all artifacts inside dist (alias of --dist with default dist)",
+        "cert": "Certificate PEM chain path to include in signature metadata",
+        "key_path": "Optional path to private key PEM file to use instead of keyring secret"
+      }
+    },
+    "verify": {
+      "summary": "Verify an artifact signature (.sig) or a sigstore bundle (DSSE)",
+      "description": "Verify digital signatures or sigstore bundles; supports a variety of verification options."
+    },
+    "check": {
+      "summary": "Check project JSON/YAML/Markdown files (lint/format/parse)",
+      "description": "Static checking utilities for files in the project, useful for CI and local development.",
+      "flags": {
+        "path": "Path to the project directory (default: current directory)",
+        "json": "Output results as JSON",
+        "fix": "Try to automatically fix/format files when possible"
+      }
+    },
+    "export": {
+      "summary": "Export `kam.toml` to common formats (module.prop, module.json, repo.json, track.json, config.json, update.json)",
+      "flags": {
+        "format": "Export format: prop, json, update, repo, track, config",
+        "output": "Output file path (default: a format-specific filename in the current directory)"
+      }
+    },
+    "toml": {
+      "summary": "Inspect and edit `kam.toml` using dot-path keys (get/set/unset/list)",
+      "flags": {
+        "file": "Operate on this file instead of project's kam.toml"
+      }
+    },
+    "about": {
+      "summary": "Display about information for Kam and credits"
+    },
+    "config": {
+      "summary": "Manage per-project or global kam configuration (similar to git config)"
+    },
+    "help": {
+      "summary": "Print this message or the help of the given subcommand(s)"
+    }
+  }
+}

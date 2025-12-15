@@ -1,24 +1,44 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM"],
-    "jsx": "preserve",
-    "strict": true,
-    "skipLibCheck": true,
+    "baseUrl": ".",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "incremental": true,
-    "types": ["vite/client"],
-    "baseUrl": ".",
+    "jsx": "preserve",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"],
-      "~/*": ["src/*"]
-    }
+      "@/*": [
+        "src/*"
+      ],
+      "~/*": [
+        "src/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": [
+      "vite/client"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js"],
-  "exclude": ["node_modules", "dist", "out", ".out"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out",
+    ".out"
+  ],
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.js"
+  ]
 }

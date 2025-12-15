@@ -1,0 +1,259 @@
+{
+  "about": {
+    "about": "Kam — Kam 是一个用于搭建、构建、打包和分发 Android 模块与模板（ksu/APU/Magisk/AnyTemplate）的命令行工具包。它支持项目初始化、打包、模板管理与仓库元数据导出。",
+    "long_about": "Kam 是一个用于搭建、构建、打包和分发 Android 模块与模板（ksu/APU/Magisk/AnyTemplate）的命令行工具。它支持项目初始化、打包、模板管理与仓库元数据导出。使用 `kam help <COMMAND>` 可查看特定命令的详细说明。"
+  },
+  "flags": {
+    "help": "打印帮助信息（使用 -h 查看摘要）",
+    "version": "打印版本"
+  },
+  "commands": {
+    "init": {
+      "summary": "从模板初始化一个新的 Kam 项目（支持 meta 与 kernel 模板）",
+      "description": "交互式或非交互式地从模板创建新的 Kam 模块或项目；支持本地归档或内置模板，并可预填常用元数据。",
+      "flags": {
+        "name": "项目路径（交互模式下可省略）",
+        "id": "项目 ID（默认：文件夹名）",
+        "project_name": "项目名称（默认：Example Module Name）",
+        "version": "项目版本（默认：1.0.0）",
+        "author": "作者名称",
+        "update_json": "Update JSON URL（默认：从 git 推断）",
+        "description": "项目描述",
+        "force": "强制覆盖已存在文件",
+        "interactive": "以交互模式运行并提示需要的值",
+        "var": "模板变量，格式 key=value（可重复）",
+        "template": "要使用的模板（内置 ID 或本地路径）",
+        "tmpl": "创建模板项目（兼容别名）"
+      }
+    },
+    "build": {
+      "summary": "构建并打包模块为可分发的 ZIP 工件",
+      "description": "构建模块或工作区成员，并在输出目录生成工件。",
+      "flags": {
+        "path": "项目路径（默认：当前目录）",
+        "all": "构建所有工作区成员",
+        "output": "输出目录（默认：dist）",
+        "bump": "启用版本 bump 流程（KAM_BUMP_ENABLED）",
+        "release": "启用发布构建模式（KAM_RELEASE_ENABLED）",
+        "sign": "构建后进行签名（KAM_SIGN_ENABLE）",
+        "interactive": "以交互方式运行构建；确认可能的破坏性操作",
+        "pre_release": "启用预发布模式（KAM_PRE_RELEASE）",
+        "quiet": "减少非必要输出，仅显示警告与错误",
+        "jobs": "并行作业数（默认：CPU 核心数）"
+      }
+    },
+    "version": {
+      "summary": "管理模块版本与自动 bump 策略",
+      "description": "管理与查询模块版本、bump 策略以及自动化版本管理辅助工具。"
+    },
+    "cache": {
+      "summary": "管理本地模板与制品缓存",
+      "description": "列出、添加、移除或清理已缓存的模板，并显示缓存目录。",
+      "subcommands": {
+        "list": {
+          "summary": "列出缓存的模板"
+        },
+        "clean": {
+          "summary": "清理所有缓存的模板"
+        },
+        "add": {
+          "summary": "从本地目录或归档添加模板到缓存",
+          "flags": {
+            "name": "要注册的模板名称",
+            "path": "模板源路径（目录或归档）"
+          }
+        },
+        "remove": {
+          "summary": "从缓存中移除模板",
+          "flags": {
+            "name": "要移除的模板名称"
+          }
+        },
+        "path": {
+          "summary": "显示缓存目录路径"
+        }
+      }
+    },
+    "tmpl": {
+      "summary": "管理模板：导入、导出、打包与列出",
+      "description": "管理模板资源，包括导入/导出、列出与路径查询等操作。",
+      "subcommands": {
+        "list": {
+          "summary": "列出所有可用模板"
+        },
+        "import": {
+          "summary": "从文件导入模板",
+          "flags": {
+            "path": "模板归档路径（单个模板：.tar.gz；多个模板：.zip）",
+            "name": "模板名称（可选；默认使用文件名）",
+            "force": "若模板已存在则强制覆盖"
+          }
+        },
+        "export": {
+          "summary": "导出模板到文件",
+          "flags": {
+            "templates": "要导出的模板名称（可多次指定）",
+            "output": "输出文件路径（.tar.gz / .zip）",
+            "force": "若输出已存在则强制覆盖"
+          }
+        },
+        "remove": {
+          "summary": "从缓存中移除模板"
+        },
+        "path": {
+          "summary": "显示模板缓存目录路径"
+        },
+        "pull": {
+          "summary": "从 URL 下载模板并导入",
+          "flags": {
+            "url": "下载 URL（默认：GitHub release 的 templates ZIP）",
+            "global": "此标志为一致性保留（无实际影响）"
+          }
+        },
+        "update": {
+          "summary": "从配置中记录的 URL 重新下载并导入",
+          "flags": {
+            "global": "此标志为一致性保留（无实际影响）"
+          }
+        }
+      }
+    },
+    "validate": {
+      "summary": "验证 `kam.toml` 配置与模板",
+      "description": "检查 kam.toml、模板与项目结构中的错误与警告。",
+      "flags": {
+        "path": "项目路径（默认：当前目录）"
+      }
+    },
+    "completions": {
+      "summary": "为常见 Shell 生成补全脚本",
+      "description": "为受支持的 Shell（bash、zsh、fish、powershell、elvish）生成补全脚本。",
+      "flags": {
+        "shell": "补全脚本对应的 Shell 类型（bash,zsh,fish,powershell,elvish）",
+        "out": "输出文件；若省略则打印到 STDOUT"
+      }
+    },
+    "install": {
+      "summary": "使用配置的 root 管理器将模块包安装到已连接设备",
+      "description": "将构建好的模块（.zip）安装到已连接设备（支持 Magisk/KernelSU/APatchSU）。可通过 `kam config set root.manager <Manager>` 配置首选管理器。",
+      "flags": {
+        "path": "模块包路径（.zip）。若省略，Kam 会尝试在项目的 dist/ 输出目录中查找工件",
+        "manager": "首选的 root 管理器（Magisk、KernelSU、APatchSU）",
+        "dry_run": "打印派生出的安装命令而不执行",
+        "quiet": "减少非必要输出"
+      }
+    },
+    "secret": {
+      "summary": "密钥管理（用于签名/验证任务）",
+      "description": "管理已保存的密钥：添加、获取、列出、移除、导出、导入以及受信任 Root CA 管理。",
+      "subcommands": {
+        "list": {
+          "summary": "列出已保存的密钥"
+        },
+        "add": {
+          "summary": "从值或文件添加密钥",
+          "flags": {
+            "name": "密钥名称",
+            "file": "从文件中读取密钥（用于添加）",
+            "file_path": "作为位置参数接受路径（可替代 --file）",
+            "value": "直接在命令行提供密钥值",
+            "force_file": "强制以本地文件方式存储而非系统密钥环",
+            "password": "在命令行传入密码（不建议；若未设置会交互式询问）",
+            "with_backup": "同时在 ~/.kam/secrets 下创建本地回退文件"
+          }
+        },
+        "get": {
+          "summary": "获取密钥并打印到 stdout（或写入文件）",
+          "flags": {
+            "out": "写入文件而非 stdout",
+            "password": "在命令行传入密码（不建议）"
+          }
+        },
+        "remove": {
+          "summary": "移除密钥"
+        },
+        "export": {
+          "summary": "导出密钥到文件（默认导出明文；使用 --encrypted 导出加密 blob）",
+          "flags": {
+            "encrypted": "启用导出加密 blob"
+          }
+        },
+        "import": {
+          "summary": "从文件导入密钥"
+        },
+        "exportpub": {
+          "summary": "从存储的私钥密钥导出公钥",
+          "flags": {
+            "name": "密钥名称（默认：main）",
+            "out": "输出文件路径（若省略则打印到 stdout）"
+          }
+        },
+        "importcert": {
+          "summary": "从 GitHub issue 或文件导入开发者证书链",
+          "flags": {
+            "repo": "GitHub 仓库（owner/repo）包含证书（可选）",
+            "issue": "包含证书的 GitHub issue 编号（可选）",
+            "cert_chain": "证书链 PEM 文件路径",
+            "name": "存储证书的名称"
+          }
+        },
+        "trust": {
+          "summary": "管理受信任的根证书（Root CAs）",
+          "flags": {
+            "add_root": "从文件或 URL 添加根证书",
+            "ca_name": "根证书名称",
+            "list": "列出受信任的根证书",
+            "remove": "按名称移除根证书"
+          }
+        }
+      }
+    },
+    "sign": {
+      "summary": "使用密钥环或 PEM 文件对制品进行签名",
+      "flags": {
+        "src": "要签名的工件（zip）。若省略，请使用 --dist 或 --all 来签名多个文件",
+        "secret": "密钥环中包含私钥的密钥名称（默认：main）",
+        "out": "输出目录（默认：dist）",
+        "dist": "对给定目录中的所有工件进行签名（作为 src 的替代）",
+        "all": "对 dist 中的所有工件签名（等同于指定 --dist）",
+        "cert": "用于包含在签名元数据中的证书链 PEM 路径",
+        "key_path": "可选：使用私钥 PEM 文件而非密钥环中的密钥"
+      }
+    },
+    "verify": {
+      "summary": "验证工件签名（.sig）或 sigstore 包（DSSE）",
+      "description": "验证工件签名或 sigstore 包；支持多种验证选项。"
+    },
+    "check": {
+      "summary": "检查项目中的 JSON/YAML/Markdown 文件（lint/format/parse）",
+      "description": "用于 CI 或本地开发的静态检查工具，帮助早期发现错误。",
+      "flags": {
+        "path": "项目路径（默认：当前目录）",
+        "json": "以 JSON 格式输出结果",
+        "fix": "尝试自动修复/格式化文件（若可能）"
+      }
+    },
+    "export": {
+      "summary": "将 `kam.toml` 导出为常用格式（module.prop、module.json、repo.json、track.json、config.json、update.json）",
+      "flags": {
+        "format": "导出格式：prop、json、update、repo、track、config",
+        "output": "输出文件路径（默认：写入当前目录的格式化文件名）"
+      }
+    },
+    "toml": {
+      "summary": "使用点路径键（get/set/unset/list）检查并编辑 `kam.toml`",
+      "flags": {
+        "file": "操作指定文件而非项目的 kam.toml"
+      }
+    },
+    "about": {
+      "summary": "显示 Kam 的关于信息与致谢"
+    },
+    "config": {
+      "summary": "管理项目或全局的 kam 配置（类似于 git config）"
+    },
+    "help": {
+      "summary": "打印此信息或给定子命令的帮助信息"
+    }
+  }
+}

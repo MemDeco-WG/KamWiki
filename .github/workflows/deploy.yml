@@ -1,90 +1,71 @@
 name: Deploy KamWEBUI (Bun → GitHub Pages)
-
-# Trigger on pushes to main/master (this repo is the KamWEBUI submodule) and allow manual dispatch
 on:
   push:
     branches:
-      - main
-      - master
-  workflow_dispatch:
-
-# Permissions required for Pages deployment
+    - main
+    - master
+  workflow_dispatch: null
 permissions:
   contents: read
   pages: write
   id-token: write
-
 concurrency:
-  group: "kam-webui-pages-${{ github.ref }}"
+  group: kam-webui-pages-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build-and-deploy:
     name: Build with Bun and deploy to GitHub Pages
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          # ensure submodules are available if this repo is checked out as submodule
-          submodules: recursive
-          fetch-depth: 0
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Cache Bun & node modules
+      uses: actions/cache@v5.0.1
+      with:
+        path: |
+          ~/.bun
+          node_modules
+        key: ${{ runner.os }}-kam-webui-js-cache-${{ hashFiles('bun.lock', 'bun.lockb', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml') || github.sha }}-v1
+        restore-keys: |
+          ${{ runner.os }}-kam-webui-js-cache-
+    - name: Install Bun
+      run: |
+        # Install Bun (non-interactive)
+        curl -fsSL https://bun.sh/install | bash
+        # Ensure bun is on the PATH for following steps
+        echo "$HOME/.bun/bin" >> $GITHUB_PATH
+    - name: Verify Bun
+      run: bun --version
+    - name: Install dependencies (bun)
+      run: |
+        # Prefer frozen install if lock exists; fallback to normal install
+        if [ -f bun.lock ] || [ -f bun.lockb ]; then
+          bun install --frozen-lockfile || bun install
+        else
+          bun install
+        fi
+    - name: Build production assets
+      run: |2
 
-      - name: Cache Bun & node modules
-        uses: actions/cache@v5.0.1
-        with:
-          path: |
-            ~/.bun
-            node_modules
-          # Use lockfiles (if present) to version cache; fall back to sha if none exists
-          key: ${{ runner.os }}-kam-webui-js-cache-${{ hashFiles('bun.lock', 'bun.lockb', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml') || github.sha }}-v1
-          restore-keys: |
-            ${{ runner.os }}-kam-webui-js-cache-
-
-      - name: Install Bun
-        run: |
-          # Install Bun (non-interactive)
-          curl -fsSL https://bun.sh/install | bash
-          # Ensure bun is on the PATH for following steps
-          echo "$HOME/.bun/bin" >> $GITHUB_PATH
-
-      - name: Verify Bun
-        run: bun --version
-
-      - name: Install dependencies (bun)
-        run: |
-          # Prefer frozen install if lock exists; fallback to normal install
-          if [ -f bun.lock ] || [ -f bun.lockb ]; then
-            bun install --frozen-lockfile || bun install
-          else
-            bun install
-          fi
-
-      - name: Build production assets
-        run: |
-
-          bun run build
-
-      - name: Inspect build output
-        run: ls -la dist || true
-
-      - name: Prepare artifact for GitHub Pages
-        run: |
-          rm -rf _pages_dist || true
-          if [ -d "dist" ]; then
-            mv dist _pages_dist
-          else
-            echo "No dist directory found to deploy" && exit 1
-          fi
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: _pages_dist
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4.0.5
+        bun run build
+    - name: Inspect build output
+      run: ls -la dist || true
+    - name: Prepare artifact for GitHub Pages
+      run: |
+        rm -rf _pages_dist || true
+        if [ -d "dist" ]; then
+          mv dist _pages_dist
+        else
+          echo "No dist directory found to deploy" && exit 1
+        fi
+    - name: Configure GitHub Pages
+      uses: actions/configure-pages@v5
+    - name: Upload artifact for GitHub Pages
+      uses: actions/upload-pages-artifact@v4
+      with:
+        path: _pages_dist
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v4.0.5

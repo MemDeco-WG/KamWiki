@@ -207,13 +207,20 @@ const localizedCommand = computed<KamCommand | undefined>(() => {
     if (c.flags && c.flags.length > 0 && te(flagsKey)) {
         const flagDescriptions = t(flagsKey) as Record<string, string>;
         result.flags = c.flags.map((flag) => {
-            // Try to match flag by key (e.g., "interactive" for "-i, --interactive")
+            // Try to match flag by key (prefer long names like "--output" before short alias "-o")
             // Normalize to a string and guard the split index result
             const f = typeof flag?.flag === "string" ? flag.flag : "";
-            const splitFirst = String(f).split(",")[0] ?? "";
-            const flagKey = splitFirst
-                .replace(/^-+/, "")
-                .replace(/^i$/, "interactive");
+            let flagKey = "";
+            // Prefer a long-form flag (e.g. --output) when available, otherwise fall back to the first alias
+            const longMatch = String(f).match(/--([a-zA-Z0-9\-_]+)/);
+            if (longMatch && longMatch[1]) {
+                flagKey = longMatch[1];
+            } else {
+                const splitFirst = String(f).split(",")[0] ?? "";
+                flagKey = splitFirst
+                    .replace(/^-+/, "")
+                    .replace(/^i$/, "interactive");
+            }
             const localizedDesc =
                 flagDescriptions[flagKey] ?? flag?.description ?? "";
             return { ...(flag || {}), description: localizedDesc };
