@@ -1,0 +1,83 @@
+name: Deploy KamWEBUI (Bun → GitHub Pages)
+
+# Trigger on pushes to main/master that touch the KamWEBUI folder, and allow manual dispatch
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'Kam/KamWEBUI/**'
+  workflow_dispatch:
+
+# Permissions required for Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'kam-webui-pages-${{ github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build with Bun and deploy to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # ensure submodules are available if this repo is checked out as submodule
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Cache Bun & node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            Kam/KamWEBUI/node_modules
+          # Use lockfiles (if present) to version cache; fall back to sha if none exists
+          key: ${{ runner.os }}-kam-webui-js-cache-${{ hashFiles('Kam/KamWEBUI/bun.lock', 'Kam/KamWEBUI/bun.lockb', 'Kam/KamWEBUI/package-lock.json', 'Kam/KamWEBUI/yarn.lock', 'Kam/KamWEBUI/pnpm-lock.yaml') || github.sha }}-v1
+          restore-keys: |
+            ${{ runner.os }}-kam-webui-js-cache-
+
+      - name: Install Bun
+        run: |
+          # Install Bun (non-interactive)
+          curl -fsSL https://bun.sh/install | bash
+          # Ensure bun is on the PATH for following steps
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Verify Bun
+        run: bun --version
+
+      - name: Install dependencies (bun)
+        working-directory: Kam/KamWEBUI
+        run: |
+          # Prefer frozen install if lock exists; fallback to normal install
+          if [ -f bun.lock ] || [ -f bun.lockb ]; then
+            bun install --frozen-lockfile || bun install
+          else
+            bun install
+          fi
+
+      - name: Build production assets
+        working-directory: Kam/KamWEBUI
+        run: bun run build
+
+      - name: Inspect build output
+        run: ls -la Kam/KamWEBUI/dist || true
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: Kam/KamWEBUI/dist
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
