@@ -1,7 +1,7 @@
 /*
   public/sw.js — Basic Service Worker for Kam Web UI
 
-  - Provides a simple offline-first behavior:
+  - Provides a simple caching strategy:
     - Pre-caches critical assets (index.html, CSS, icons)
     - Uses cache-first for same-origin static assets
     - Uses network-first for navigation (SPA HTML) to keep latest content,
