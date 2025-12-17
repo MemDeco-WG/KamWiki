@@ -130,7 +130,8 @@
       "description": "为受支持的 Shell（bash、zsh、fish、powershell、elvish）生成补全脚本。",
       "flags": {
         "shell": "补全脚本对应的 Shell 类型（bash,zsh,fish,powershell,elvish）",
-        "out": "输出文件；若省略则打印到 STDOUT"
+        "out": "输出文件；若省略则打印到 STDOUT",
+        "install": "将补全脚本安装到标准 shell 补全目录（可能需要 root 权限）"
       }
     },
     "install": {

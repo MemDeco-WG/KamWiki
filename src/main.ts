@@ -506,6 +506,11 @@ const messages = {
               "Output file for the completion script; if omitted, prints to STDOUT",
           },
           {
+            flag: "--install",
+            description:
+              "Install the completion script into the shell's completion directory (may require root)",
+          },
+          {
             flag: "--modules-url <URL>",
             description:
               "URL for the modules registry API (default: https://modules.kernelsu.org). Overrides the built-in modules endpoint",

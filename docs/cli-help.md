@@ -285,6 +285,7 @@ Arguments:
 
 Options:
   -o, --out <OUT>  Output file. If omitted, prints to STDOUT
+  --install        Install the completion script into the shell's completion directory (may require root)
   -h, --help       Print help
 ```
 

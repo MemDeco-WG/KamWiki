@@ -250,10 +250,16 @@ export const KAM_COMMANDS: KamCommand[] = [
         flag: "-o, --out <OUT>",
         description: "Write completion script to file (else prints to stdout)",
       },
+      {
+        flag: "--install",
+        description:
+          "Install the completion script into the standard shell completion directory (may require root)",
+      },
       { flag: "-h, --help", description: "Print help for completions" },
     ],
     examples: [
       "kam completions zsh --out ~/.zsh/completion/_kam",
+      "kam completions zsh --install",
       "kam completions bash",
     ],
   },
