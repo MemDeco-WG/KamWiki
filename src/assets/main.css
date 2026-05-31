@@ -317,6 +317,134 @@ body,
     font-size: 1.6rem;
     margin-bottom: 0.25rem;
 }
+
+.page-heading,
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.section {
+    margin-top: 1rem;
+}
+
+.section-heading h2,
+.content h3 {
+    margin: 0 0 0.4rem;
+}
+
+.toolbar,
+.toolbar-actions,
+.search-row,
+.chip-row,
+.sidebar-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.toolbar {
+    margin-top: 0.875rem;
+}
+
+.toolbar-actions {
+    margin-left: auto;
+}
+
+.stack-xs {
+    margin-top: 0.375rem;
+}
+
+.stack-sm {
+    margin-top: 0.625rem;
+}
+
+.stack-md {
+    margin-top: 1rem;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.empty-state {
+    padding: 0.5rem 0.75rem;
+}
+
+.sidebar-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.sidebar-note,
+.sidebar-command-summary {
+    font-size: 0.8rem;
+}
+
+.sidebar-command {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.sidebar-command-name {
+    font-weight: 700;
+}
+
+.sidebar-actions {
+    margin-top: 0.75rem;
+}
+
+.command-card {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.command-card-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.command-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.command-title-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.command-title-row strong {
+    font-size: 1.02rem;
+}
+
+.command-summary {
+    font-size: 0.9rem;
+}
+
+.example-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.375rem;
+}
+
+.flag-column {
+    width: 32%;
+}
+
 .command-meta {
     display: flex;
     gap: 0.75rem;
@@ -685,6 +813,24 @@ code {
         position: sticky;
         top: 0;
         z-index: 50;
+    }
+
+    .page-heading,
+    .section-heading,
+    .command-card {
+        flex-direction: column;
+    }
+
+    .toolbar-actions,
+    .command-card-actions {
+        margin-left: 0;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .search-row,
+    .search-row input {
+        width: 100%;
     }
 }
 

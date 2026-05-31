@@ -19,7 +19,7 @@
 
 import { describe, it, expect } from "vitest";
 
-const ROOT = "/home/lightjunction/GITHUB/Kam/KamWEBUI";
+const ROOT = process.cwd();
 
 const CANDIDATES = [
   // alias-based imports (preferred)

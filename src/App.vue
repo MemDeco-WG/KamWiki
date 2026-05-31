@@ -2,17 +2,10 @@
     <div id="app">
         <!-- Header -->
         <header class="header" role="banner" :aria-label="t('app.headerLabel')">
-            <div class="brand" role="heading" aria-level="1">
-                <router-link
-                    to="/"
-                    @click="clearSearch"
-                    class="brand"
-                    :aria-label="t('app.home')"
-                >
+            <div class="brand-wrap" role="heading" aria-level="1">
+                <router-link to="/" @click="clearSearch" class="brand" :aria-label="t('app.home')">
                     <span class="logo">KM</span>
-                    <span
-                        >{{ t("app.brand") }} — {{ t("app.brandSuffix") }}</span
-                    >
+                    <span>{{ t("app.brand") }} - {{ t("app.brandSuffix") }}</span>
                 </router-link>
             </div>
 
@@ -47,8 +40,7 @@
                     @click="toggleTheme"
                     :aria-label="themeToggleTitle"
                 >
-                    <span v-if="!isDark" class="theme-icon">🌙</span>
-                    <span v-else class="theme-icon">☀️</span>
+                    <span class="theme-icon">{{ isDark ? "L" : "D" }}</span>
                 </button>
             </div>
         </header>
@@ -58,14 +50,14 @@
             <!-- Sidebar -->
             <aside class="sidebar" :aria-label="t('app.commandsNavigation')">
                 <div class="card">
-                    <div class="header" style="padding: 0; margin-bottom: 12px">
+                    <div class="sidebar-heading">
                         <div>
                             <strong>{{ t("app.commands") }}</strong>
                             <div class="kv muted">
-                                {{ t("app.brand") }} — {{ t("app.subtitle") }}
+                                {{ t("app.brand") }} - {{ t("app.subtitle") }}
                             </div>
                         </div>
-                        <div class="muted" style="font-size: 0.85rem">
+                        <div class="muted sidebar-note">
                             <small>{{ t("app.searchAndExplore") }}</small>
                         </div>
                     </div>
@@ -93,20 +85,11 @@
                                 @click="onSelectCommand(cmd.name)"
                                 role="link"
                             >
-                                <div
-                                    style="
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 10px;
-                                    "
-                                >
-                                    <div style="font-weight: 700">
+                                <div class="sidebar-command">
+                                    <div class="sidebar-command-name">
                                         {{ cmd.name }}
                                     </div>
-                                    <div
-                                        class="kv muted"
-                                        style="font-size: 0.8rem"
-                                    >
+                                    <div class="kv muted sidebar-command-summary">
                                         {{ cmd.summary }}
                                     </div>
                                 </div>
@@ -115,26 +98,22 @@
 
                         <li
                             v-if="!filteredCommands.length"
-                            class="muted"
-                            style="padding: 8px 12px"
+                            class="muted empty-state"
                         >
                             {{ t("app.noResults") }}
                         </li>
                     </ul>
 
-                    <div
-                        style="
-                            margin-top: 12px;
-                            display: flex;
-                            gap: 8px;
-                            align-items: center;
-                        "
-                    >
+                    <div class="sidebar-actions">
                         <router-link to="/" class="btn">{{
                             t("app.home")
                         }}</router-link>
                         <button class="btn" @click="copyAllCommands">
-                            {{ t("app.copy") }} 'kam' {{ t("app.usage") }}
+                            {{
+                                copiedKey === "all-commands"
+                                    ? t("app.copied")
+                                    : `${t("app.copy")} kam ${t("app.usage")}`
+                            }}
                         </button>
                     </div>
                 </div>
@@ -162,12 +141,14 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getAllCommands, searchCommands } from "@/data/kam";
+import { useClipboardFeedback } from "@/composables/useClipboard";
 import type { KamCommand } from "@/data/kam";
 
 // Router for navigation on search enter
 const router = useRouter();
 const route = useRoute();
 const { t, locale } = useI18n();
+const { copiedKey, copyText } = useClipboardFeedback();
 
 // Search query state, shared between header & sidebar
 const searchQuery = ref("");
@@ -192,37 +173,9 @@ const themeToggleTitle = computed(() =>
     isDark.value ? t("app.switchToLight") : t("app.switchToDark"),
 );
 
-// Copies text to clipboard
-async function copyText(text: string) {
-    try {
-        if (!navigator?.clipboard) {
-            // No clipboard API — try legacy fallback
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            document.body.removeChild(ta);
-            return true;
-        }
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("Failed to copy", err);
-        return false;
-    }
-}
-
-// Copy helper: copy 'kam' base usage
 async function copyAllCommands() {
-    const text = `kam — CLI (commands: ${allCommands.value.map((c) => c.name).join(", ")})`;
-    const ok = await copyText(text);
-    if (ok) {
-        // Optionally give feedback via UI - a snack or similar
-        // eslint-disable-next-line no-console
-        console.debug("Copied default kam usage to clipboard");
-    }
+    const commands = allCommands.value.map((command) => command.name).join(", ");
+    await copyText(`kam CLI commands: ${commands}`, "all-commands");
 }
 
 function clearSearch() {
@@ -231,7 +184,7 @@ function clearSearch() {
 }
 
 // When the user selects a command in the sidebar
-function onSelectCommand(name: string) {
+function onSelectCommand(_name: string) {
     // We'll rely on router-link navigation, but ensure search cleared on selection
     searchQuery.value = "";
 }

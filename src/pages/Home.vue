@@ -1,21 +1,14 @@
 <template>
     <section class="home">
         <header class="page-card">
-            <div
-                style="
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 16px;
-                    align-items: center;
-                "
-            >
+            <div class="page-heading">
                 <div>
                     <h1>{{ t("app.brand") }} — {{ t("app.subtitle") }}</h1>
                     <p class="muted">
                         {{ t("app.homeDescription") }}
                     </p>
                 </div>
-                <div class="kv" style="text-align: right">
+                <div class="kv align-right">
                     <div>
                         <strong>{{ t("app.offline") }}</strong>
                     </div>
@@ -25,23 +18,17 @@
                 </div>
             </div>
 
-            <div
-                style="
-                    margin-top: 14px;
-                    display: flex;
-                    gap: 12px;
-                    align-items: center;
-                    flex-wrap: wrap;
-                "
-            >
+            <div class="toolbar">
                 <div class="muted">
                     {{ t("app.usage") }}:
                     <code>kam &lt;COMMAND&gt; [OPTIONS]</code>
                 </div>
 
-                <div style="margin-left: auto; display: flex; gap: 8px">
+                <div class="toolbar-actions">
                     <button class="btn" @click="copyUsage">
-                        {{ t("app.copy") }}
+                        {{
+                            copiedKey === "all" ? t("app.copied") : t("app.copy")
+                        }}
                     </button>
                     <button
                         class="btn"
@@ -56,16 +43,9 @@
                 </div>
             </div>
 
-            <div style="margin-top: 10px">
+            <div class="stack-sm">
                 <div class="kv">{{ t("app.globalOptions") }}</div>
-                <div
-                    style="
-                        display: flex;
-                        gap: 8px;
-                        margin-top: 6px;
-                        flex-wrap: wrap;
-                    "
-                >
+                <div class="chip-row">
                     <span
                         v-for="flag in localizedGlobalFlags"
                         :key="flag.flag"
@@ -78,18 +58,11 @@
             </div>
         </header>
 
-        <section style="margin-top: 16px">
-            <div
-                style="
-                    display: flex;
-                    gap: 12px;
-                    justify-content: space-between;
-                    align-items: center;
-                "
-            >
-                <h2 style="margin: 0">{{ t("app.commands") }}</h2>
+        <section class="section">
+            <div class="section-heading">
+                <h2>{{ t("app.commands") }}</h2>
 
-                <div style="display: flex; gap: 8px; align-items: center">
+                <div class="search-row">
                     <input
                         type="search"
                         class="search-input"
@@ -104,45 +77,28 @@
                 </div>
             </div>
 
-            <div style="margin-top: 10px">
-                <div class="command-list">
+            <div class="stack-md">
+                <div class="command-list" data-testid="command-list">
                     <article
                         v-for="cmd in localizedCommands"
                         :key="cmd.name"
-                        class="card"
-                        style="
-                            display: flex;
-                            gap: 12px;
-                            align-items: flex-start;
-                            justify-content: space-between;
-                        "
+                        class="card command-card"
                     >
-                        <div style="flex: 1">
+                        <div class="command-card-main">
                             <router-link
                                 :to="`/command/${cmd.name}`"
                                 class="command-item"
                                 :aria-label="t('app.open') + ' ' + cmd.name"
                             >
-                                <div
-                                    style="
-                                        display: flex;
-                                        gap: 8px;
-                                        align-items: center;
-                                    "
-                                >
-                                    <strong style="font-size: 1.02rem">{{
-                                        cmd.name
-                                    }}</strong>
-                                    <div
-                                        class="muted"
-                                        style="font-size: 0.9rem"
-                                    >
+                                <div class="command-title-row">
+                                    <strong>{{ cmd.name }}</strong>
+                                    <div class="muted command-summary">
                                         {{ cmd.summary }}
                                     </div>
                                 </div>
                             </router-link>
 
-                            <div style="margin-top: 8px">
+                            <div class="stack-sm">
                                 <div class="kv">{{ t("app.usage") }}</div>
                                 <pre class="code">{{ cmd.usage }}</pre>
                             </div>
@@ -152,9 +108,9 @@
                                     (toggleAllExpanded || expanded[cmd.name]) &&
                                     cmd.description
                                 "
-                                style="margin-top: 8px"
+                                class="stack-sm"
                             >
-                                <div class="kv" style="margin-bottom: 6px">
+                                <div class="kv">
                                     {{ t("app.description") }}
                                 </div>
                                 <div
@@ -168,10 +124,10 @@
                                     (toggleAllExpanded || expanded[cmd.name]) &&
                                     cmd.examples?.length
                                 "
-                                style="margin-top: 8px"
+                                class="stack-sm"
                             >
                                 <div class="kv">{{ t("app.examples") }}</div>
-                                <div style="margin-top: 6px">
+                                <div class="example-list">
                                     <pre
                                         v-for="ex in cmd.examples"
                                         :key="ex"
@@ -182,15 +138,7 @@
                             </div>
                         </div>
 
-                        <div
-                            style="
-                                display: flex;
-                                flex-direction: column;
-                                gap: 8px;
-                                align-items: flex-end;
-                                justify-content: flex-start;
-                            "
-                        >
+                        <div class="command-card-actions">
                             <router-link
                                 :to="`/command/${cmd.name}`"
                                 class="btn btn-primary"
@@ -198,7 +146,7 @@
                             >
                             <button class="btn" @click="copyCommandUsage(cmd)">
                                 {{
-                                    copied?.cmd === cmd.name
+                                    copiedKey === cmd.name
                                         ? t("app.copied")
                                         : t("app.copy")
                                 }}
@@ -223,94 +171,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted } from "vue";
+import { computed, reactive, ref, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getAllCommands, searchCommands, KAM_GLOBAL_FLAGS } from "@/data/kam";
+import { getAllCommands, searchCommands } from "@/data/kam";
 import { useI18n } from "vue-i18n";
+import { useClipboardFeedback } from "@/composables/useClipboard";
+import { useLocalizedCommands } from "@/composables/useLocalizedCommands";
 import type { KamCommand } from "@/data/kam";
 
 const route = useRoute();
 const router = useRouter();
-const { t, te } = useI18n();
+const i18n = useI18n();
+const { t } = i18n;
+const { copiedKey, copyText } = useClipboardFeedback();
 
-// Localized global flags
-const localizedGlobalFlags = computed(() =>
-    KAM_GLOBAL_FLAGS.map((flag) => {
-        let description = flag.description || "";
-        if (flag.flag.includes("--help") || flag.flag.includes("-h")) {
-            description = t("globalFlags.help");
-        } else if (
-            flag.flag.includes("--version") ||
-            flag.flag.includes("-V")
-        ) {
-            description = t("globalFlags.version");
-        }
-        return { ...flag, description };
-    }),
-);
+const localSearch = ref("");
 
-// Local, synced search value. We keep it in the URL as `q` so a shared link can reproduce the search.
-const localSearch = ref<string>("");
-// Set from route
 onMounted(() => {
     localSearch.value = (route.query.q as string) ?? "";
 });
 
-// Keep route query in sync when typing
-watch(
-    localSearch,
-    (val) => {
-        // Replace query param to avoid navigation history clogging
-        const query = val ? { q: val } : {};
-        router.replace({ query });
-    },
-    { immediate: false },
-);
+watch(localSearch, (value) => {
+    router.replace({ query: value ? { q: value } : {} });
+});
 
 watch(
     () => route.query.q,
-    (q) => {
-        // Keep localSearch in sync when header search or any other component sets the query
-        localSearch.value = (q as string) ?? "";
+    (query) => {
+        localSearch.value = (query as string) ?? "";
     },
 );
 
-// Commands and search
-const allCommands = ref<KamCommand[]>(getAllCommands());
+const allCommands = getAllCommands();
 const filteredCommands = computed(() =>
-    localSearch.value ? searchCommands(localSearch.value) : getAllCommands(),
+    localSearch.value ? searchCommands(localSearch.value) : allCommands,
+);
+const { localizedCommands, localizedGlobalFlags } = useLocalizedCommands(
+    filteredCommands,
+    i18n,
 );
 
-// Create a localized version of the filtered commands (summary/description override)
-const localizedCommands = computed(() =>
-    filteredCommands.value.map((cmd) => {
-        const summaryKey = `commands.${cmd.name}.summary`;
-        const descKey = `commands.${cmd.name}.description`;
-        const localizedSummary = te(summaryKey)
-            ? (t(summaryKey) as string)
-            : cmd.summary;
-        const localizedDescription = te(descKey)
-            ? (t(descKey) as string)
-            : cmd.description;
-        return {
-            ...cmd,
-            summary: localizedSummary,
-            description: localizedDescription,
-        } as KamCommand;
-    }),
-);
-
-// UI state
 const toggleAllExpanded = ref(false);
 const expanded = reactive<Record<string, boolean>>({});
-const copied = ref<{ cmd?: string | null; when?: number } | null>(null);
 
 function toggleExpand(cmd: KamCommand) {
     expanded[cmd.name] = !expanded[cmd.name];
 }
 
 function applySearchEnter() {
-    // Jump to first search result if present
     const first = localizedCommands.value[0] || filteredCommands.value[0];
     if (first) {
         router.push({ name: "Command", params: { name: first.name } });
@@ -322,50 +230,16 @@ function clearSearch() {
     router.replace({ query: {} });
 }
 
-// Clipboard helpers
-async function copyToClipboard(text: string) {
-    if (navigator?.clipboard && navigator.clipboard.writeText) {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            // fallback
-        }
-    }
-    // fallback method
-    try {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.setAttribute("readonly", "true");
-        ta.style.position = "absolute";
-        ta.style.left = "-9999px";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        return true;
-    } catch (e) {
-        return false;
-    }
+function copyUsage() {
+    const commandNames = allCommands.map((command) => command.name).join(", ");
+    copyText(`kam <COMMAND> - ${commandNames}`, "all");
 }
 
-async function copyUsage() {
-    const cmdLine = `kam <COMMAND> — ${allCommands.value.map((c) => c.name).join(", ")}`;
-    const ok = await copyToClipboard(cmdLine);
-    if (ok) {
-        copied.value = { cmd: "all", when: Date.now() };
-        setTimeout(() => (copied.value = null), 1500);
-    }
-}
-
-async function copyCommandUsage(cmd: KamCommand) {
-    const u = cmd.usage ?? `kam ${cmd.name}`;
-    const ok = await copyToClipboard(u);
-    if (ok) {
-        copied.value = { cmd: cmd.name, when: Date.now() };
-        setTimeout(() => (copied.value = null), 1500);
-    }
+function copyCommandUsage(cmd: KamCommand) {
+    copyText(cmd.usage ?? `kam ${cmd.name}`, cmd.name);
 }
 </script>
 
-<!-- styles moved to src/assets/main.css -->
+<style scoped>
+/* Page-specific hook kept for SFC style transform tests; layout lives in main.css. */
+</style>

@@ -40,5 +40,3 @@ kam sim run service
 ## 下一步
 
 - 阅读：`docs/workflow.zh-CN.md`（开发工作流）
-- 阅读：`docs/quality-gates.zh-CN.md`（质量门槛）
-- 阅读：`docs/known-issues.zh-CN.md`（已知问题）
