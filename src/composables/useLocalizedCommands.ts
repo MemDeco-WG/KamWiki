@@ -4,6 +4,7 @@ import { KAM_GLOBAL_FLAGS, type KamCommand, type KamFlag } from "@/data/kam";
 type Translator = {
   t: (key: string) => unknown;
   te: (key: string) => boolean;
+  locale?: string | { value?: string };
 };
 
 function flagDescriptionKey(flag: KamFlag) {
@@ -25,23 +26,38 @@ function flagLookupKey(flag: KamFlag) {
     .replace(/^i$/, "interactive");
 }
 
+function localeKey(translator: Translator) {
+  const locale =
+    typeof translator.locale === "string"
+      ? translator.locale
+      : translator.locale?.value;
+  return locale?.toLowerCase().startsWith("zh") ? "zh" : "en";
+}
+
 export function localizeCommand(command: KamCommand, translator: Translator) {
   const baseKey = `commands.${command.name}`;
   const summaryKey = `${baseKey}.summary`;
   const descriptionKey = `${baseKey}.description`;
   const flagDescriptionsKey = `${baseKey}.flagDescriptions`;
+  const generatedLocale = command.localized?.[localeKey(translator)];
 
   const localized: KamCommand = {
     ...command,
-    summary: translator.te(summaryKey)
-      ? String(translator.t(summaryKey))
-      : command.summary,
-    description: translator.te(descriptionKey)
-      ? String(translator.t(descriptionKey))
-      : command.description,
+    summary: generatedLocale?.summary
+      ? generatedLocale.summary
+      : translator.te(summaryKey)
+        ? String(translator.t(summaryKey))
+        : command.summary,
+    description: generatedLocale?.description
+      ? generatedLocale.description
+      : translator.te(descriptionKey)
+        ? String(translator.t(descriptionKey))
+        : command.description,
   };
 
-  if (command.flags?.length && translator.te(flagDescriptionsKey)) {
+  if (generatedLocale?.flags?.length) {
+    localized.flags = generatedLocale.flags;
+  } else if (command.flags?.length && translator.te(flagDescriptionsKey)) {
     const flagDescriptions = translator.t(flagDescriptionsKey) as Record<
       string,
       string
