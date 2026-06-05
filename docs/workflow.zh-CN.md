@@ -8,7 +8,7 @@ Host 端（你的开发机）是 `kam` CLI 的主要运行环境。它负责：
 
 - **项目脚手架**：`kam init`
 - **构建与打包**：`kam build`
-- **本地仿真与测试**：`kam sim`
+- **真机开发会话**：`kam dev`
 - **模板管理**：`kam tmpl`
 - **配置与元数据**：`kam toml`, `kam config`, `kam export`
 

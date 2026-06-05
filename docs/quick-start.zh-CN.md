@@ -26,16 +26,13 @@ kam init hello-world -t kam_template
 cd hello-world
 ```
 
-## 3. 运行本地仿真
+## 3. 构建模块
 
-Kam 提供本地仿真功能，允许你在无需真实设备或模拟器的情况下测试模块的核心逻辑。
+在项目根目录下运行构建命令，生成可部署的模块 ZIP。
 
 ```bash
-# 在项目根目录下运行
-kam sim run service
+kam build
 ```
-
-> 说明：若 `kam sim` 在你的版本中不可用，请以 `kam --help` 的实际输出为准，并在 Issues 中反馈。
 
 ## 下一步
 
